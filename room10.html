@@ -141,13 +141,13 @@
 <body>
   <article class="card">
     <p class="eyebrow">Waiting Room</p>
-    <h1>Guess you're not so old after all.</h1>
-    <p>Well, that was just a start. It gets harder from here.</p>
+    <h1>So this was supposed to be longer</h1>
+    <p>the puzzles exist but webpages take time, I suppose it's for the best, wouldn't want your brain to catch fire</p>
 
     <div class="buttons">
-      <button id="ndaButton" class="button">Sign NDA</button>
-      <button id="liabilityButton" class="button hidden secondary">Sign liability waiver</button>
-      <button id="continueButton" class="button hidden continue">Continue with this "adventure"</button>
+      <button id="ndaButton" class="button">Done</button>
+      <button id="liabilityButton" class="button hidden secondary">Wait try again</button>
+      <button id="continueButton" class="button hidden continue">You just need to reuse the template don't you...</button>
     </div>
 
     <p class="note"> Remember, you made this choice. </p>
@@ -179,7 +179,7 @@
       continueButton.disabled = true;
       continueButton.style.cursor = 'progress';
       setTimeout(() => {
-        window.location.href = 'room3.html';
+        window.location.href = 'done.html';
       }, 600);
     });
   </script>

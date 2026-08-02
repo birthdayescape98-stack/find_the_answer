@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Room 7 - Dungeon Prison</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #111214;
+      --panel: rgba(31, 28, 23, 0.94);
+      --panel-border: #5b4b34;
+      --text: #eed8b9;
+      --muted: #b2997c;
+      --accent: #d4b16a;
+      --box: #7d6245;
+      --box-shadow: rgba(0, 0, 0, 0.45);
+      --flower: #c6a57c;
+      --flower-shadow: rgba(67, 45, 23, 0.35);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: radial-gradient(circle at top, #25221e 0%, #0c0b0a 50%, #050304 100%);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background-image: repeating-linear-gradient(90deg, rgba(255,255,255,0.02) 0 2px, transparent 2px 18px),
+                        linear-gradient(180deg, rgba(255,255,255,0.04), transparent 60%);
+      pointer-events: none;
+    }
+
+    .layout {
+      position: relative;
+      min-height: 100vh;
+      padding: 24px 16px 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .top-hint {
+      margin: 0;
+      width: 100%;
+      color: #f4e4cb;
+      font-size: clamp(1.2rem, 2vw, 1.7rem);
+      font-weight: 800;
+      text-align: center;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      text-shadow: 0 0 18px rgba(244, 228, 203, 0.22);
+      padding: 14px 8px;
+      border: 1px solid rgba(244, 228, 203, 0.12);
+      border-radius: 999px;
+      backdrop-filter: blur(12px);
+      background: rgba(5, 5, 10, 0.35);
+      max-width: 720px;
+    }
+
+    .scene {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .flower-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 12px;
+      width: 100%;
+      margin-top: -8px;
+    }
+
+    .flower {
+      width: min(280px, 34vw);
+      height: min(280px, 34vw);
+      margin: -6px;
+      cursor: grab;
+      user-select: none;
+      display: grid;
+      place-items: center;
+      transition: transform 180ms ease, opacity 180ms ease;
+    }
+
+    .flower.dragging {
+      opacity: 0.7;
+      transform: scale(1.05);
+      cursor: grabbing;
+    }
+
+    .flower img,
+    .cardboard-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      pointer-events: none;
+      display: block;
+    }
+
+    .drop-zone {
+      width: min(360px, 80vw);
+      height: min(360px, 80vw);
+      position: relative;
+      display: grid;
+      place-items: center;
+    }
+
+    .drop-zone.active {
+      outline: 2px dashed rgba(244, 228, 203, 0.55);
+      outline-offset: 18px;
+      background: rgba(244, 228, 203, 0.06);
+      border-radius: 22px;
+    }
+
+    .next-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px 30px;
+      border-radius: 18px;
+      background: linear-gradient(135deg, #d7b57a, #b18251);
+      border: 1px solid rgba(255,255,255,0.18);
+      color: #2b180a;
+      font-size: 1rem;
+      font-weight: 800;
+      text-decoration: none;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 220ms ease;
+    }
+
+    .next-button.visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .prison-bars {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+      background-size: 100% 74px, 44px 100%;
+      opacity: 0.35;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background-image: repeating-linear-gradient(90deg, rgba(255,255,255,0.02) 0 2px, transparent 2px 18px),
+                        linear-gradient(180deg, rgba(255,255,255,0.04), transparent 60%);
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <p class="top-hint">Feed achappam to make Laya work faster</p>
+
+    <div class="scene">
+      <div class="cardboard-box drop-zone" id="dropZone">
+        <img src="box.png" alt="cardboard box" />
+      </div>
+
+      <div class="flower-row" id="flowerRow">
+        <div class="flower" draggable="true" data-flower="1">
+          <img src="flower.png" alt="flower" />
+        </div>
+        <div class="flower" draggable="true" data-flower="2">
+          <img src="flower.png" alt="flower" />
+        </div>
+        <div class="flower" draggable="true" data-flower="3">
+          <img src="flower.png" alt="flower" />
+        </div>
+        <div class="flower" draggable="true" data-flower="4">
+          <img src="flower.png" alt="flower" />
+        </div>
+        <div class="flower" draggable="true" data-flower="5">
+          <img src="flower.png" alt="flower" />
+        </div>
+      </div>
+
+      <a class="next-button" id="nextButton" href="room8.html">NEXT</a>
+    </div>
+  </div>
+
+  <script>
+    const flowers = Array.from(document.querySelectorAll('.flower'));
+    const dropZone = document.getElementById('dropZone');
+    const nextButton = document.getElementById('nextButton');
+    let removedCount = 0;
+
+    flowers.forEach((flower) => {
+      flower.addEventListener('dragstart', (event) => {
+        event.dataTransfer.setData('text/plain', flower.dataset.flower);
+        event.currentTarget.classList.add('dragging');
+      });
+
+      flower.addEventListener('dragend', (event) => {
+        event.currentTarget.classList.remove('dragging');
+      });
+    });
+
+    dropZone.addEventListener('dragover', (event) => {
+      event.preventDefault();
+      dropZone.classList.add('active');
+    });
+
+    dropZone.addEventListener('dragleave', () => {
+      dropZone.classList.remove('active');
+    });
+
+    dropZone.addEventListener('drop', (event) => {
+      event.preventDefault();
+      dropZone.classList.remove('active');
+      const id = event.dataTransfer.getData('text/plain');
+      const flower = document.querySelector(`.flower[data-flower="${id}"]`);
+      if (flower) {
+        flower.style.opacity = '0';
+        flower.style.transform = 'scale(0.9)';
+        flower.style.pointerEvents = 'none';
+        setTimeout(() => flower.remove(), 200);
+        removedCount += 1;
+        if (removedCount === 5) {
+          nextButton.classList.add('visible');
+        }
+      }
+    });
+  </script>
+</body>
+</html>

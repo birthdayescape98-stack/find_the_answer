@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Room 3 - Stellar Puzzle</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #02040f;
+      --panel: rgba(250, 250, 252, 0.92);
+      --panel-border: rgba(255, 255, 255, 0.44);
+      --text: #0f172a;
+      --muted: #475569;
+      --accent: #7dd3fc;
+      --warning: #b91c1c;
+      --shadow: 0 28px 80px rgba(4, 10, 26, 0.45);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top left, #0f172a 0%, #02040f 38%, #000 100%);
+      color: white;
+      overflow: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background-image: radial-gradient(circle, rgba(255,255,255,0.2) 0.8px, transparent 0.8px), radial-gradient(circle, rgba(173,216,255,0.14) 1px, transparent 1px);
+      background-size: 100px 100px, 180px 180px;
+      opacity: 0.35;
+      pointer-events: none;
+    }
+
+    .space {
+      position: relative;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 40px 20px;
+      z-index: 1;
+    }
+
+    .planet, .planet-ring {
+      position: absolute;
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    .planet {
+      box-shadow: inset 0 0 40px rgba(255,255,255,0.12), 0 18px 40px rgba(0,0,0,0.35);
+    }
+
+    .planet.one {
+      width: 140px;
+      height: 140px;
+      background: radial-gradient(circle at 30% 30%, #93c5fd 0%, #2563eb 70%, #1e40af 100%);
+      top: 8%;
+      left: 8%;
+    }
+
+    .planet.two {
+      width: 110px;
+      height: 110px;
+      background: radial-gradient(circle at 35% 35%, #fde68a 0%, #f59e0b 55%, #b45309 100%);
+      top: 20%;
+      right: 10%;
+    }
+
+    .planet.three {
+      width: 90px;
+      height: 90px;
+      background: radial-gradient(circle at 35% 30%, #fbcfe8 0%, #d946ef 60%, #9333ea 100%);
+      bottom: 12%;
+      left: 12%;
+    }
+
+    .planet.four {
+      width: 64px;
+      height: 64px;
+      background: radial-gradient(circle at 30% 30%, #c7d2fe 0%, #818cf8 100%);
+      bottom: 28%;
+      right: 22%;
+    }
+
+    .planet-ring {
+      border: 2px dashed rgba(255,255,255,0.22);
+      mix-blend-mode: screen;
+      animation: orbit 18s linear infinite;
+    }
+
+    .planet-ring.one {
+      width: 360px;
+      height: 360px;
+      top: 6%;
+      left: 6%;
+    }
+
+    .planet-ring.two {
+      width: 240px;
+      height: 240px;
+      top: 30%;
+      right: 12%;
+      animation-duration: 22s;
+    }
+
+    .planet-ring.three {
+      width: 200px;
+      height: 200px;
+      bottom: 18%;
+      left: 18%;
+      animation-duration: 20s;
+    }
+
+    @keyframes orbit {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .panel {
+      position: relative;
+      width: min(820px, 100%);
+      padding: 42px 44px;
+      border-radius: 32px;
+      background: rgba(248, 250, 252, 0.94);
+      border: 1px solid rgba(255,255,255,0.32);
+      backdrop-filter: blur(18px);
+      box-shadow: var(--shadow);
+      color: var(--text);
+      overflow: hidden;
+    }
+
+    .panel::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at top right, rgba(59,130,246,0.12), transparent 28%), radial-gradient(circle at bottom left, rgba(14,165,233,0.1), transparent 26%);
+      pointer-events: none;
+    }
+
+    .panel h1 {
+      margin: 0;
+      font-size: clamp(2.4rem, 4vw, 3.2rem);
+      line-height: 1.02;
+      letter-spacing: -0.05em;
+      color: #111827;
+    }
+
+    .panel p {
+      margin: 18px 0 0;
+      color: var(--muted);
+      font-size: 1rem;
+      line-height: 1.8;
+    }
+
+    .number-grid {
+      margin: 30px 0 0;
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .number-grid div {
+      padding: 16px 18px;
+      border-radius: 18px;
+      background: rgba(15, 23, 42, 0.05);
+      border: 1px solid rgba(15, 23, 42, 0.08);
+      color: #0f172a;
+      font-weight: 700;
+      font-size: 0.96rem;
+      text-align: center;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.12);
+    }
+
+    .input-row {
+      margin-top: 32px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      align-items: center;
+    }
+
+    .input-row input {
+      flex: 1;
+      min-width: 220px;
+      border-radius: 16px;
+      border: 1px solid rgba(15, 23, 42, 0.12);
+      padding: 18px 20px;
+      background: rgba(255,255,255,0.95);
+      color: #0f172a;
+      font-size: 1rem;
+      outline: none;
+    }
+
+    .input-row button {
+      border: none;
+      border-radius: 16px;
+      background: #1d4ed8;
+      color: white;
+      padding: 18px 24px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 16px 30px rgba(30, 64, 175, 0.24);
+      transition: transform 180ms ease, background 180ms ease;
+    }
+
+    .input-row button:hover {
+      transform: translateY(-1px);
+      background: #2563eb;
+    }
+
+    .hint {
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .hint a {
+      display: inline-block;
+      margin-top: 10px;
+      color: var(--accent);
+      text-decoration: underline;
+    }
+
+    .hint a:hover {
+      color: #0f172a;
+    }
+
+    .warning-overlay {
+      position: fixed;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      background: rgba(15, 23, 42, 0.72);
+      padding: 24px;
+      visibility: hidden;
+      opacity: 0;
+      transition: opacity 220ms ease, visibility 220ms ease;
+      z-index: 20;
+    }
+
+    .warning-overlay.visible {
+      visibility: visible;
+      opacity: 1;
+    }
+
+    .warning-card {
+      width: min(560px, 100%);
+      background: #e2e8f0;
+      border-radius: 28px;
+      border: 2px solid rgba(148, 163, 184, 0.35);
+      padding: 30px 32px;
+      box-shadow: 0 32px 100px rgba(15, 23, 42, 0.32);
+      text-align: center;
+      position: relative;
+    }
+
+    .warning-card::before {
+      content: "!";
+      position: absolute;
+      top: -24px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: #ef4444;
+      color: white;
+      font-size: 2rem;
+      display: grid;
+      place-items: center;
+      box-shadow: 0 14px 30px rgba(239, 68, 68, 0.35);
+    }
+
+    .warning-card h2 {
+      margin: 0;
+      color: #991b1b;
+      font-size: clamp(1.6rem, 3vw, 2.2rem);
+      letter-spacing: -0.03em;
+    }
+
+    .warning-card p {
+      margin: 18px 0 0;
+      color: #334155;
+      font-size: 1rem;
+      line-height: 1.7;
+    }
+
+    .warning-card button {
+      margin-top: 24px;
+      border: none;
+      border-radius: 14px;
+      background: #334155;
+      color: white;
+      padding: 14px 22px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 180ms ease, background 180ms ease;
+    }
+
+    .warning-card button:hover {
+      transform: translateY(-1px);
+      background: #1e293b;
+    }
+  </style>
+</head>
+<body>
+  <div class="space">
+    <div class="planet-ring one"></div>
+    <div class="planet-ring two"></div>
+    <div class="planet-ring three"></div>
+    <div class="planet one"></div>
+    <div class="planet two"></div>
+    <div class="planet three"></div>
+    <div class="planet four"></div>
+
+    <section class="panel" aria-label="Stellar puzzle">
+      <h1>This puzzle is quite... STELLAR</h1>
+      <p>I'm a horrible scientist, didn't add units. Keep units in mind, oK?</p>
+      <div class="number-grid" aria-label="Sequence numbers">
+        <div>5934</div>
+        <div>2301</div>
+        <div>6798</div>
+        <div>12048</div>
+        <div>5003</div>
+        <div>50000</div>
+        <div>9865</div>
+      </div>
+      <div class="input-row">
+        <input id="passcode" type="text" placeholder="Answer to the universe" aria-label="Password input" autocomplete="off" />
+        <button id="submitBtn" type="button">Activate</button>
+      </div>
+      <p class="hint">Hint: Surely you can figure this out.<br /><a href="star_grade.html">No I have an old man brain, help</a></p>
+    </section>
+  </div>
+
+  <div class="warning-overlay" id="warningOverlay" role="alertdialog" aria-modal="true" aria-labelledby="warningTitle">
+    <div class="warning-card">
+      <h2 id="warningTitle">WARNING</h2>
+      <p id="warningMessage">The code does not match the cosmic passphrase. Try again before the galaxy collapses.</p>
+      <button id="closeWarning" type="button">Close</button>
+    </div>
+  </div>
+
+  <script>
+    const expected = 'GMFBKOA';
+    const input = document.getElementById('passcode');
+    const button = document.getElementById('submitBtn');
+    const overlay = document.getElementById('warningOverlay');
+    const closeWarning = document.getElementById('closeWarning');
+
+    function showWarning() {
+      overlay.classList.add('visible');
+      input.focus();
+    }
+
+    function hideWarning() {
+      overlay.classList.remove('visible');
+    }
+
+    const warningMessage = document.getElementById('warningMessage');
+
+    function checkPasscode() {
+      const value = input.value.trim().toUpperCase();
+      if (value === expected) {
+        window.location.href = 'room4.html';
+        return;
+      }
+
+      if (value === '42') {
+        warningMessage.textContent = 'Wrong universe, surely you didnt think that was the answer.';
+      } else {
+        warningMessage.textContent = 'The code does not match the cosmic passphrase. Try again before the galaxy collapses.';
+      }
+
+      showWarning();
+    }
+
+    button.addEventListener('click', checkPasscode);
+    closeWarning.addEventListener('click', hideWarning);
+    input.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') {
+        checkPasscode();
+      }
+    });
+  </script>
+</body>
+</html>

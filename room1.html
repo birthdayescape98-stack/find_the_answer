@@ -1,40 +1,425 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Room 1</title>
-</head>
-
-<body>
-
-<h1>Room 1</h1>
-
-<p>The door is locked.</p>
-
-<input id="code">
-
-<button onclick="checkCode()">
-Unlock
-</button>
-
-<script>
-function checkCode() {
-
-    let code =
-        document.getElementById("code").value;
-
-    if(code === "ORION"){
-
-        window.location =
-            "room2.html";
-
-    } else {
-
-        alert("Incorrect.");
-
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Room 1 - Forest Terminal</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --forest-bg: #e7f7e9;
+      --forest-panel: rgba(255, 255, 255, 0.88);
+      --forest-text: #1f4f2b;
+      --terminal-bg: rgba(20, 45, 20, 0.96);
+      --terminal-text: #b0ffb0;
+      --terminal-highlight: #7cff82;
+      --terminal-border: #a0d8a0;
+      --flower: #fce4f0;
+      --leaf: #a4d89f;
     }
 
-}
-</script>
+    * {
+      box-sizing: border-box;
+    }
 
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Inter", "Courier New", monospace;
+      background: radial-gradient(circle at top left, #d7f2d6 0%, #b7e8c2 20%, #85c78b 45%, #5ca26d 100%);
+      color: var(--forest-text);
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background-image: radial-gradient(circle, rgba(255,255,255,0.18) 0%, transparent 40%), radial-gradient(circle, rgba(255,255,255,0.14) 0%, transparent 30%);
+      opacity: 0.6;
+      pointer-events: none;
+    }
+
+    .page {
+      position: relative;
+      padding: 40px 24px 80px;
+      max-width: 1080px;
+      margin: 0 auto;
+    }
+
+    .header-card {
+      background: rgba(255, 255, 255, 0.9);
+      border: 2px solid rgba(68, 120, 72, 0.42);
+      border-radius: 32px;
+      padding: 32px 34px;
+      margin-bottom: 28px;
+      box-shadow: 0 24px 70px rgba(45, 118, 61, 0.12);
+      backdrop-filter: blur(12px);
+    }
+
+    .header-card h1 {
+      margin: 0 0 10px;
+      font-size: clamp(2rem, 4vw, 3.4rem);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #265132;
+    }
+
+    .header-card p {
+      margin: 0;
+      font-size: 1rem;
+      line-height: 1.9;
+      color: #2a4f39;
+    }
+
+    .forest-terminal {
+      display: grid;
+      gap: 24px;
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .panel-shell {
+      position: relative;
+      border-radius: 30px;
+      padding: 26px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.86) 0%, rgba(235,255,236,0.92) 38%, rgba(255,255,255,0.82) 100%);
+      border: 1px solid rgba(70, 140, 90, 0.24);
+      box-shadow: 0 26px 90px rgba(23, 102, 51, 0.16);
+      overflow: hidden;
+    }
+
+    .panel-shell::before,
+    .panel-shell::after {
+      content: "";
+      position: absolute;
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      background: radial-gradient(circle at center, rgba(255,255,255,0.8), transparent 60%);
+      opacity: 0.42;
+    }
+
+    .panel-shell::before {
+      top: -30px;
+      left: -20px;
+    }
+
+    .panel-shell::after {
+      bottom: -30px;
+      right: -10px;
+    }
+
+    .terminal-card {
+      border-radius: 26px;
+      overflow: hidden;
+      border: 2px solid rgba(130, 185, 120, 0.45);
+      background: linear-gradient(180deg, rgba(15, 35, 15, 0.92), rgba(10, 22, 10, 0.98));
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.05), 0 24px 56px rgba(10, 30, 10, 0.28);
+    }
+
+    .terminal-header {
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(33, 71, 33, 0.95);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .terminal-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #7cff82;
+      box-shadow: 0 0 8px rgba(124, 255, 130, 0.8);
+    }
+
+    .terminal-title {
+      color: #cdf8c7;
+      font-size: 0.95rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      opacity: 0.92;
+    }
+
+    .terminal-screen {
+      min-height: 340px;
+      padding: 22px 24px;
+      font-family: "Courier New", monospace;
+      font-size: 1rem;
+      line-height: 1.8;
+      color: var(--terminal-text);
+      background: radial-gradient(circle at top left, rgba(52, 92, 44, 0.18), rgba(13, 24, 11, 0.92) 65%);
+      overflow-y: auto;
+      max-height: 440px;
+      position: relative;
+    }
+
+    .terminal-screen::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image: radial-gradient(circle at 20% 20%, rgba(124,255,130,0.12), transparent 20%), radial-gradient(circle at 80% 80%, rgba(255,255,255,0.07), transparent 18%);
+      pointer-events: none;
+    }
+
+    .terminal-line {
+      position: relative;
+      z-index: 1;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .terminal-line span.command {
+      color: #a5ffab;
+      font-weight: 700;
+    }
+
+    .terminal-input {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 18px 20px 20px;
+      background: rgba(18, 40, 18, 0.92);
+      border-top: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .prompt {
+      color: #7cff82;
+      font-weight: 900;
+    }
+
+    .terminal-input input {
+      flex: 1;
+      min-width: 0;
+      border: 1px solid rgba(124,255,130,0.35);
+      border-radius: 8px;
+      background: rgba(12, 24, 10, 0.8);
+      color: #d6ffde;
+      padding: 12px 14px;
+      font-family: "Courier New", monospace;
+      font-size: 0.99rem;
+      outline: none;
+      box-shadow: inset 0 0 14px rgba(124,255,130,0.1);
+    }
+
+    .terminal-input input::placeholder {
+      color: rgba(206, 250, 207, 0.52);
+    }
+
+    .terminal-input input:focus {
+      border-color: rgba(124,255,130,0.7);
+    }
+
+    .hint-panel {
+      margin-top: 20px;
+      padding: 18px 22px;
+      border-radius: 24px;
+      background: rgba(255,255,255,0.85);
+      border: 1px solid rgba(112, 171, 115, 0.45);
+      color: #2b553b;
+      font-size: 0.98rem;
+      line-height: 1.8;
+      box-shadow: 0 20px 40px rgba(32, 95, 41, 0.1);
+    }
+
+    .password-shell {
+      margin-top: 24px;
+      padding: 24px;
+      border-radius: 28px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.9), rgba(236, 255, 239, 0.92));
+      border: 1px solid rgba(85, 142, 86, 0.36);
+      box-shadow: 0 24px 60px rgba(22, 84, 35, 0.12);
+    }
+
+    .password-title {
+      margin: 0 0 12px;
+      color: #2f5f3c;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      font-size: 0.94rem;
+    }
+
+    .password-row {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .password-row input {
+      flex: 1;
+      min-width: 220px;
+      border-radius: 12px;
+      border: 1px solid rgba(91, 151, 96, 0.6);
+      padding: 14px 16px;
+      font-family: "Courier New", monospace;
+      font-size: 1rem;
+      color: #214f2c;
+      background: rgba(255,255,255,0.98);
+      outline: none;
+    }
+
+    .password-row button {
+      border: none;
+      background: linear-gradient(135deg, #76d87b, #47a663);
+      color: #0f2d14;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 14px 22px;
+      border-radius: 14px;
+      cursor: pointer;
+      box-shadow: 0 8px 18px rgba(26, 91, 38, 0.28);
+    }
+
+    .discover-note {
+      margin-top: 18px;
+      padding: 16px 18px;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.86);
+      color: #2a5e3d;
+      border: 1px dashed rgba(73, 143, 84, 0.6);
+      display: none;
+      font-size: 0.98rem;
+      line-height: 1.7;
+    }
+
+    @media (max-width: 720px) {
+      .page {
+        padding: 20px 16px 60px;
+      }
+
+      .terminal-input {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .password-row {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="header-card">
+      <h1>Welcome weary traveler</h1>
+      <p>secrets remain to be found, don't overthink it</p>
+    </div>
+
+    <div class="forest-terminal">
+      <div class="panel-shell">
+        <div class="terminal-card">
+          <div class="terminal-header">
+            <div class="terminal-dot"></div>
+            <div class="terminal-dot" style="background: #ffb347; box-shadow: 0 0 8px rgba(255, 179, 71, 0.7);"></div>
+            <div class="terminal-dot" style="background: #ff6b9c; box-shadow: 0 0 8px rgba(255, 107, 156, 0.6);"></div>
+            <div class="terminal-title">forest-terminal.exe</div>
+          </div>
+
+          <div class="terminal-screen" id="terminalScreen" aria-live="polite">
+            <div class="terminal-line">>>>Welcome anonymous user 923401243</div>
+            <div class="terminal-line"><span class="command"></span>>>>Who knows what i contain</div>
+            <div class="terminal-line">>>>I feel there is likely a <span class="command">cat</span> <span class="command"></span> in here <span class="command"></span>eventually</div>
+          </div>
+
+          <div class="terminal-input">
+            <span class="prompt">&gt;&gt;&gt;</span>
+            <input id="terminalInput" type="text" placeholder="enter command here" autocomplete="off" />
+          </div>
+        </div>
+
+        <div class="hint-panel">
+          The terminal echoes what the forest wants. Most commands fail, but the right ones whisper the secrets of the hidden files.
+        </div>
+
+        <div class="password-shell">
+          <p class="password-title">PASSWORD</p>
+          <div class="password-row">
+            <input id="passwordInput" type="text" placeholder="type the magic answer..." autocomplete="off" />
+            <button id="passwordButton">Enter</button>
+          </div>
+          <div class="discover-note" id="discoverNote">You found the existence of the files answer.txt notanswer.txt and money.txt</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const terminalScreen = document.getElementById('terminalScreen');
+    const terminalInput = document.getElementById('terminalInput');
+    const passwordInput = document.getElementById('passwordInput');
+    const passwordButton = document.getElementById('passwordButton');
+    const discoverNote = document.getElementById('discoverNote');
+
+    const responses = {
+      'ls': 'answer.txt   notanswer.txt   money.txt',
+      'cat answer.txt': 'uh the power of love?',
+      'cat notanswer.txt': 'it literally says not answer in the name',
+      'cat money.txt': 'CORRECT! money is the answer to everything! perhaps "a dollar" is the answer after all'
+    };
+
+    function appendTerminalLine(content, className = 'terminal-line') {
+      const line = document.createElement('div');
+      line.className = className;
+      line.innerHTML = content;
+      terminalScreen.appendChild(line);
+      terminalScreen.scrollTop = terminalScreen.scrollHeight;
+    }
+
+    function printPrompt(command) {
+      appendTerminalLine(`<span class="prompt">&gt;&gt;&gt;</span> ${escapeHtml(command)}`);
+    }
+
+    function escapeHtml(text) {
+      return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    function processCommand(input) {
+      const trimmed = input.trim();
+      if (!trimmed) {
+        return;
+      }
+
+      printPrompt(trimmed);
+
+      const lower = trimmed.toLowerCase();
+      if (lower === 'ls') {
+        appendTerminalLine(`<span class="command">${responses['ls']}</span>`);
+        discoverNote.style.display = 'block';
+        return;
+      }
+
+      if (responses[lower]) {
+        appendTerminalLine(`<span class="command">${responses[lower]}</span>`);
+        return;
+      }
+
+      appendTerminalLine('<span class="command">!error</span>');
+    }
+
+    terminalInput.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') {
+        processCommand(terminalInput.value);
+        terminalInput.value = '';
+      }
+    });
+
+    passwordButton.addEventListener('click', () => {
+      const attempt = passwordInput.value.trim().toLowerCase();
+      if (attempt === 'a dollar') {
+        window.location.href = 'room2.html';
+      } else {
+        alert('That is not the magic password.');
+      }
+    });
+
+    passwordInput.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') {
+        passwordButton.click();
+      }
+    });
+  </script>
 </body>
 </html>

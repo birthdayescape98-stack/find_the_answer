@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rate Our Web Design</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 30px;
+      font-family: "Courier New", monospace;
+      background: #000;
+      color: #fff;
+      text-align: center;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 24px;
+    }
+
+    .container {
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 24px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 4px solid #ff0000;
+      box-shadow: 0 0 0 8px rgba(255, 0, 0, 0.2);
+      position: relative;
+    }
+
+    h1 {
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 16px;
+      color: #ff0000;
+    }
+
+    .stars {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin: 20px 0;
+    }
+
+    .star {
+      width: 60px;
+      height: 60px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.6rem;
+      background: transparent;
+      border: 3px solid #ff0000;
+      color: #ff0000;
+      cursor: default;
+      opacity: 1;
+      transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease;
+      user-select: none;
+    }
+
+    .star:hover,
+    .star.hovered {
+      background: rgba(255, 0, 0, 0.15);
+      transform: scale(1.08);
+    }
+
+    .star.selected {
+      background: #ff0000;
+      color: #000;
+      transform: scale(1.1);
+    }
+
+    .star.disabled {
+      cursor: default;
+      opacity: 1;
+    }
+
+    .hint {
+      color: #fff;
+      font-size: 0.95rem;
+      margin-top: -8px;
+    }
+
+    .thanks {
+      display: none;
+      font-size: 1.05rem;
+      color: #fff;
+      margin-top: 18px;
+    }
+
+    .back-link {
+      display: inline-block;
+      margin-top: 14px;
+      padding: 12px 20px;
+      background: #ff0000;
+      color: #000;
+      text-decoration: none;
+      font-weight: bold;
+      border: 3px solid #fff;
+      box-shadow: 4px 4px 0 #fff;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Rate Our Web Design</h1>
+    <p>Select your rating below. Be Honest!</p>
+    <div class="stars" id="starContainer">
+      <div class="star disabled" data-value="1">☆</div>
+      <div class="star disabled" data-value="2">☆</div>
+      <div class="star disabled" data-value="3">☆</div>
+      <div class="star disabled" data-value="4">☆</div>
+      <div class="star" id="star5" data-value="5">☆</div>
+    </div>
+    <p class="hint">There's a correct answer btw</p>
+    <p class="thanks" id="thanks">Thanks for the perfect rating! <br />Click below to go back.</p>
+    <a class="back-link" href="index.html" id="backLink" style="display:none;">Back to Main Page</a>
+  </div>
+
+  <script>
+    const starContainer = document.getElementById('starContainer');
+    const stars = Array.from(starContainer.querySelectorAll('.star'));
+    const star5 = document.getElementById('star5');
+    const thanks = document.getElementById('thanks');
+    const backLink = document.getElementById('backLink');
+
+    function clearHover() {
+      stars.forEach((star) => {
+        star.classList.remove('hovered');
+        if (!star.classList.contains('selected')) {
+          star.textContent = '☆';
+        }
+      });
+    }
+
+    function hoverStars(value) {
+      stars.forEach((star) => {
+        const starValue = parseInt(star.dataset.value, 10);
+        if (starValue <= value) {
+          star.classList.add('hovered');
+          if (!star.classList.contains('selected')) {
+            star.textContent = '★';
+          }
+        } else {
+          star.classList.remove('hovered');
+          if (!star.classList.contains('selected')) {
+            star.textContent = '☆';
+          }
+        }
+      });
+    }
+
+    stars.forEach((star) => {
+      star.addEventListener('mouseenter', () => {
+        const value = parseInt(star.dataset.value, 10);
+        hoverStars(value);
+      });
+    });
+
+    starContainer.addEventListener('mouseleave', clearHover);
+
+    star5.addEventListener('click', () => {
+      stars.forEach((star) => {
+        star.classList.add('selected');
+        star.textContent = '★';
+      });
+      thanks.style.display = 'block';
+      backLink.style.display = 'inline-block';
+    });
+  </script>
+</body>
+</html>
